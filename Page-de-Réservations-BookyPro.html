@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookyPro - Réservation Simplifiée</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#4f46e5',secondary:'#f97316'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .hero-section {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 40%, rgba(255, 255, 255, 0) 100%), url('https://readdy.ai/api/search-image?query=Modern%20booking%20app%20interface%20with%20calendar%20and%20appointment%20scheduling%20on%20a%20clean%20workspace%20with%20soft%20blue%20and%20white%20colors%2C%20professional%20office%20environment%2C%20minimalist%20design%2C%20high-quality%20professional%20photography&width=1200&height=600&seq=hero1&orientation=landscape');
+            background-size: cover;
+            background-position: center right;
+        }
+        .custom-checkbox {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .custom-checkbox input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .checkmark {
+            height: 20px;
+            width: 20px;
+            background-color: #fff;
+            border: 2px solid #e2e8f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: #4f46e5;
+            border-color: #4f46e5;
+        }
+        .checkmark:after {
+            content: "";
+            display: none;
+        }
+        .custom-checkbox input:checked ~ .checkmark:after {
+            display: block;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e2e8f0;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #4f46e5;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .custom-select {
+            position: relative;
+            display: inline-block;
+        }
+        .custom-select select {
+            display: none;
+        }
+        .select-selected {
+            background-color: white;
+        }
+        .select-selected:after {
+            position: absolute;
+            content: "";
+            top: 14px;
+            right: 10px;
+            width: 0;
+            height: 0;
+            border: 6px solid transparent;
+            border-color: #666 transparent transparent transparent;
+        }
+        .select-items div {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .select-items {
+            position: absolute;
+            background-color: white;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 99;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .select-hide {
+            display: none;
+        }
+        .select-items div:hover {
+            background-color: #f3f4f6;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .calendar-day {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .calendar-day:hover:not(.calendar-day-disabled) {
+            background-color: #f3f4f6;
+        }
+        .calendar-day-selected {
+            background-color: #4f46e5 !important;
+            color: white;
+        }
+        .calendar-day-disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+        .time-slot {
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-slot:hover:not(.time-slot-disabled) {
+            border-color: #4f46e5;
+        }
+        .time-slot-selected {
+            background-color: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .time-slot-disabled {
+            color: #d1d5db;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="#" class="text-2xl font-['Pacifico'] text-primary">BookyPro</a>
+                <nav class="hidden md:flex ml-10 space-x-6">
+                    <a href="#" class="text-gray-800 hover:text-primary font-medium">Accueil</a>
+                    <a href="#" class="text-gray-800 hover:text-primary font-medium">Services</a>
+                    <a href="#" class="text-gray-800 hover:text-primary font-medium">Comment ça marche</a>
+                    <a href="#" class="text-gray-800 hover:text-primary font-medium">Tarifs</a>
+                    <a href="#" class="text-gray-800 hover:text-primary font-medium">Contact</a>
+                </nav>
+            </div>
+            <div class="flex items-center space-x-4">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <a href="#" class="text-gray-800 hover:text-primary font-medium">Connexion</a>
+                <a href="#" class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap">Inscription</a>
+                <button class="md:hidden w-10 h-10 flex items-center justify-center text-gray-700">
+                    <i class="ri-menu-line ri-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section w-full py-20">
+        <div class="container mx-auto px-4">
+            <div class="w-full max-w-2xl">
+                <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Réservez vos services en quelques clics</h1>
+                <p class="text-lg text-gray-700 mb-8">Trouvez et réservez facilement des rendez-vous avec les meilleurs professionnels près de chez vous.</p>
+                <div class="bg-white p-4 rounded-lg shadow-lg flex flex-col md:flex-row gap-4">
+                    <div class="flex-grow">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none w-10 h-10">
+                                <i class="ri-search-line text-gray-400"></i>
+                            </div>
+                            <input type="text" class="w-full pl-10 pr-4 py-3 border-none rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Rechercher un service...">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="custom-select w-full md:w-48">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none w-10 h-10">
+                                    <i class="ri-map-pin-line text-gray-400"></i>
+                                </div>
+                                <input type="text" class="w-full pl-10 pr-4 py-3 border-none rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Localisation">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="bg-primary text-white px-6 py-3 !rounded-button whitespace-nowrap">Rechercher</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Catégories populaires</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-3">
+                        <i class="ri-scissors-line ri-lg text-primary"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Coiffure</h3>
+                </div>
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-purple-100 rounded-full mb-3">
+                        <i class="ri-spa-line ri-lg text-purple-600"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Bien-être</h3>
+                </div>
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-green-100 rounded-full mb-3">
+                        <i class="ri-restaurant-line ri-lg text-green-600"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Restaurants</h3>
+                </div>
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-yellow-100 rounded-full mb-3">
+                        <i class="ri-home-gear-line ri-lg text-yellow-600"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Services à domicile</h3>
+                </div>
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-red-100 rounded-full mb-3">
+                        <i class="ri-heart-pulse-line ri-lg text-red-600"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Santé</h3>
+                </div>
+                <div class="flex flex-col items-center p-4 rounded-lg hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
+                        <i class="ri-more-line ri-lg text-indigo-600"></i>
+                    </div>
+                    <h3 class="font-medium text-center">Plus</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Services -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold">Services en vedette</h2>
+                <div class="flex space-x-2">
+                    <button class="p-2 !rounded-full border border-gray-200 hover:border-primary">
+                        <i class="ri-arrow-left-s-line ri-lg"></i>
+                    </button>
+                    <button class="p-2 !rounded-full border border-gray-200 hover:border-primary">
+                        <i class="ri-arrow-right-s-line ri-lg"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Service Card 1 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://readdy.ai/api/search-image?query=professional%20hair%20salon%20with%20modern%20equipment%20and%20stylish%20interior%2C%20soft%20lighting%2C%20clean%20and%20elegant%20space%2C%20high-end%20salon%20chairs%20and%20mirrors%2C%20professional%20photography&width=600&height=400&seq=service1&orientation=landscape" alt="Salon de coiffure" class="w-full h-full object-cover object-top">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-3">
+                                <i class="ri-scissors-line text-primary"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500">Coiffure</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Salon Élégance</h3>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-half-fill"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.8 (124 avis)</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600 mb-4">
+                            <i class="ri-map-pin-line mr-1"></i>
+                            <span>Paris 8ème</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-semibold">À partir de 35€</span>
+                            <button class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap">Réserver</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Card 2 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://readdy.ai/api/search-image?query=luxurious%20spa%20with%20massage%20tables%2C%20candles%2C%20soft%20lighting%2C%20relaxing%20atmosphere%2C%20clean%20towels%2C%20aromatic%20oils%2C%20zen%20decorations%2C%20professional%20photography&width=600&height=400&seq=service2&orientation=landscape" alt="Spa bien-être" class="w-full h-full object-cover object-top">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full mr-3">
+                                <i class="ri-spa-line text-purple-600"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500">Bien-être</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Spa Sérénité</h3>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">5.0 (89 avis)</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600 mb-4">
+                            <i class="ri-map-pin-line mr-1"></i>
+                            <span>Lyon Centre</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-semibold">À partir de 65€</span>
+                            <button class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap">Réserver</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Card 3 -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                    <div class="h-48 overflow-hidden">
+                        <img src="https://readdy.ai/api/search-image?query=elegant%20restaurant%20interior%20with%20well-set%20tables%2C%20ambient%20lighting%2C%20professional%20waitstaff%2C%20fine%20dining%20atmosphere%2C%20wine%20glasses%2C%20high-end%20decor%2C%20professional%20photography&width=600&height=400&seq=service3&orientation=landscape" alt="Restaurant gastronomique" class="w-full h-full object-cover object-top">
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-green-100 rounded-full mr-3">
+                                <i class="ri-restaurant-line text-green-600"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-500">Restaurant</span>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Le Gourmet Français</h3>
+                        <div class="flex items-center mb-3">
+                            <div class="flex text-yellow-400">
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-fill"></i>
+                                <i class="ri-star-line"></i>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">4.2 (156 avis)</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600 mb-4">
+                            <i class="ri-map-pin-line mr-1"></i>
+                            <span>Bordeaux Centre</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-primary font-semibold">Menu à partir de 45€</span>
+                            <button class="bg-primary text-white px-4 py-2 !rounded-button whitespace-nowrap">Réserver</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-10">
+                <a href="#" class="inline-flex items-center text-primary font-medium">
+                    Voir tous les services
+                    <i class="ri-arrow-right-line ml-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+    <!-- Booking Process -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-4">Comment ça marche</h2>
+            <p class="text-gray-600 text-center max-w-2xl mx-auto mb-12">Réservez votre prochain rendez-vous en trois étapes simples</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 flex items-center justify-center bg-blue-100 rounded-full mb-4">
+                        <i class="ri-search-line ri-2x text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">1. Recherchez</h3>
+                    <p class="text-gray-600">Trouvez le service idéal parmi notre large sélection de prestataires qualifiés.</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 flex items-center justify-center bg-blue-100 rounded-full mb-4">
+                        <i class="ri-calendar-check-line ri-2x text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">2. Réservez</h3>
+                    <p class="text-gray-600">Choisissez la date et l'heure qui vous conviennent et confirmez votre réservation.</p>
+                </div>
+                
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-20 h-20 flex items-center justify-center bg-blue-100 rounded-full mb-4">
+                        <i class="ri-check-double-line ri-2x text-primary"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">3. Profitez</h3>
+                    <p class="text-gray-600">Recevez une confirmation instantanée et profitez de votre service en toute sérénité.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Demo -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Réservez en quelques clics</h2>
+            
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3">
+                    <!-- Left Sidebar -->
+                    <div class="border-r border-gray-200 p-6">
+                        <h3 class="font-semibold text-lg mb-4">Services disponibles</h3>
+                        
+                        <div class="space-y-3 mb-6">
+                            <label class="custom-checkbox flex items-center">
+                                <input type="checkbox" checked>
+                                <span class="checkmark mr-3"></span>
+                                <span>Coupe Homme (30 min)</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="checkbox">
+                                <span class="checkmark mr-3"></span>
+                                <span>Coupe Femme (45 min)</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="checkbox">
+                                <span class="checkmark mr-3"></span>
+                                <span>Coloration (90 min)</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="checkbox">
+                                <span class="checkmark mr-3"></span>
+                                <span>Brushing (20 min)</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="checkbox">
+                                <span class="checkmark mr-3"></span>
+                                <span>Soin capillaire (30 min)</span>
+                            </label>
+                        </div>
+                        
+                        <h3 class="font-semibold text-lg mb-4">Prestataires</h3>
+                        <div class="space-y-3">
+                            <label class="custom-checkbox flex items-center">
+                                <input type="radio" name="stylist" checked>
+                                <span class="checkmark mr-3"></span>
+                                <span>N'importe quel styliste</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="radio" name="stylist">
+                                <span class="checkmark mr-3"></span>
+                                <span>Sophie Dupont</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="radio" name="stylist">
+                                <span class="checkmark mr-3"></span>
+                                <span>Marc Leblanc</span>
+                            </label>
+                            <label class="custom-checkbox flex items-center">
+                                <input type="radio" name="stylist">
+                                <span class="checkmark mr-3"></span>
+                                <span>Julie Martin</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Calendar -->
+                    <div class="p-6">
+                        <h3 class="font-semibold text-lg mb-4">Sélectionnez une date</h3>
+                        
+                        <div class="mb-4 flex justify-between items-center">
+                            <button class="p-2 !rounded-full border border-gray-200 hover:border-primary">
+                                <i class="ri-arrow-left-s-line"></i>
+                            </button>
+                            <span class="font-medium">Mai 2025</span>
+                            <button class="p-2 !rounded-full border border-gray-200 hover:border-primary">
+                                <i class="ri-arrow-right-s-line"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="calendar-grid mb-2">
+                            <div class="text-center text-gray-500 text-sm py-2">Lun</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Mar</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Mer</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Jeu</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Ven</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Sam</div>
+                            <div class="text-center text-gray-500 text-sm py-2">Dim</div>
+                        </div>
+                        
+                        <div class="calendar-grid">
+                            <div class="calendar-day calendar-day-disabled">28</div>
+                            <div class="calendar-day calendar-day-disabled">29</div>
+                            <div class="calendar-day calendar-day-disabled">30</div>
+                            <div class="calendar-day">1</div>
+                            <div class="calendar-day">2</div>
+                            <div class="calendar-day">3</div>
+                            <div class="calendar-day">4</div>
+                            <div class="calendar-day">5</div>
+                            <div class="calendar-day">6</div>
+                            <div class="calendar-day">7</div>
+                            <div class="calendar-day">8</div>
+                            <div class="calendar-day">9</div>
+                            <div class="calendar-day">10</div>
+                            <div class="calendar-day">11</div>
+                            <div class="calendar-day">12</div>
+                            <div class="calendar-day">13</div>
+                            <div class="calendar-day">14</div>
+                            <div class="calendar-day">15</div>
+                            <div class="calendar-day">16</div>
+                            <div class="calendar-day">17</div>
+                            <div class="calendar-day">18</div>
+                            <div class="calendar-day">19</div>
+                            <div class="calendar-day">20</div>
+                            <div class="calendar-day">21</div>
+                            <div class="calendar-day">22</div>
+                            <div class="calendar-day">23</div>
+                            <div class="calendar-day">24</div>
+                            <div class="calendar-day">25</div>
+                            <div class="calendar-day calendar-day-selected">26</div>
+                            <div class="calendar-day">27</div>
+                            <div class="calendar-day">28</div>
+                            <div class="calendar-day">29</div>
+                            <div class="calendar-day">30</div>
+                            <div class="calendar-day">31</div>
+                            <div class="calendar-day calendar-day-disabled">1</div>
+                        </div>
+                        
+                        <h3 class="font-semibold text-lg mt-8 mb-4">Créneaux disponibles</h3>
+                        <p class="text-sm text-gray-600 mb-4">Lundi 26 Mai 2025</p>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="time-slot time-slot-disabled">09:00</div>
+                            <div class="time-slot time-slot-disabled">09:30</div>
+                            <div class="time-slot">10:00</div>
+                            <div class="time-slot">10:30</div>
+                            <div class="time-slot">11:00</div>
+                            <div class="time-slot time-slot-selected">11:30</div>
+                            <div class="time-slot">14:00</div>
+                            <div class="time-slot">14:30</div>
+                            <div class="time-slot">15:00</div>
+                            <div class="time-slot">15:30</div>
+                            <div class="time-slot">16:00</div>
+                            <div class="time-slot">16:30</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking Summary -->
+                    <div class="bg-gray-50 p-6">
+                        <h3 class="font-semibold text-lg mb-4">Récapitulatif</h3>
+                        
+                        <div class="mb-6">
+                            <div class="flex items-start mb-4">
+                                <div class="w-10 h-10 flex items-center justify-center bg-blue-100 rounded-full mr-3 mt-1">
+                                    <i class="ri-scissors-line text-primary"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium">Salon Élégance</h4>
+                                    <p class="text-sm text-gray-600">15 Rue de la Paix, Paris</p>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-b border-gray-200 py-4 my-4">
+                                <div class="flex justify-between mb-2">
+                                    <span>Service:</span>
+                                    <span class="font-medium">Coupe Homme</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span>Date:</span>
+                                    <span class="font-medium">26 Mai 2025</span>
+                                </div>
+                                <div class="flex justify-between mb-2">
+                                    <span>Heure:</span>
+                                    <span class="font-medium">11:30</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Prestataire:</span>
+                                    <span class="font-medium">N'importe quel styliste</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between text-lg font-semibold mb-6">
+                                <span>Total:</span>
+                                <span>35,00 €</span>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium mb-2">Vos coordonnées</label>
+                                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3 text-sm" placeholder="Nom complet">
+                                <input type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-3 text-sm" placeholder="Email">
+                                <input type="tel" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Téléphone">
+                            </div>
+                            
+                            <button class="w-full bg-primary text-white py-3 !rounded-button whitespace-nowrap font-medium">Confirmer la réservation</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Testimonials -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12">Ce que disent nos clients</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                    </div>
+                    <p class="text-gray-700 mb-6">"J'utilise BookyPro depuis plusieurs mois maintenant et c'est vraiment pratique. Plus besoin d'appeler pour prendre rendez-vous, tout se fait en quelques clics. Je recommande vivement !"</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                        <div>
+                            <h4 class="font-medium">Émilie Dubois</h4>
+                            <p class="text-sm text-gray-600">Paris</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 2 -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-half-fill"></i>
+                    </div>
+                    <p class="text-gray-700 mb-6">"En tant que professionnel, BookyPro m'a permis de mieux gérer mon agenda et d'augmenter ma clientèle. L'interface est intuitive et les notifications sont très utiles."</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                        <div>
+                            <h4 class="font-medium">Thomas Moreau</h4>
+                            <p class="text-sm text-gray-600">Lyon</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Testimonial 3 -->
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <div class="flex text-yellow-400 mb-4">
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-fill"></i>
+                        <i class="ri-star-line"></i>
+                    </div>
+                    <p class="text-gray-700 mb-6">"Super application pour trouver des services de qualité près de chez soi. J'ai découvert d'excellents restaurants et salons de beauté grâce à BookyPro. Les avis clients sont très utiles."</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gray-300 rounded-full mr-3"></div>
+                        <div>
+                            <h4 class="font-medium">Sophie Laurent</h4>
+                            <p class="text-sm text-gray-600">Marseille</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- CTA Section -->
+    <section class="py-16 bg-primary">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-white mb-4">Prêt à simplifier vos réservations ?</h2>
+            <p class="text-white opacity-90 mb-8 max-w-2xl mx-auto">Rejoignez des milliers d'utilisateurs qui font confiance à BookyPro pour leurs réservations quotidiennes.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#" class="bg-white text-primary px-6 py-3 !rounded-button font-medium whitespace-nowrap">Créer un compte</a>
+                <a href="#" class="border border-white text-white px-6 py-3 !rounded-button font-medium whitespace-nowrap">En savoir plus</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+                <div class="lg:col-span-2">
+                    <a href="#" class="text-2xl font-['Pacifico'] text-white mb-4 inline-block">BookyPro</a>
+                    <p class="text-gray-400 mb-6">La plateforme de réservation en ligne qui simplifie la vie des professionnels et de leurs clients.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors">
+                            <i class="ri-facebook-fill"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors">
+                            <i class="ri-twitter-fill"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors">
+                            <i class="ri-instagram-fill"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 flex items-center justify-center bg-gray-800 rounded-full hover:bg-primary transition-colors">
+                            <i class="ri-linkedin-fill"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Liens rapides</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Accueil</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Services</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Comment ça marche</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Tarifs</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Pour les professionnels</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Devenir partenaire</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Tableau de bord</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Ressources</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Témoignages</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Contact</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="ri-map-pin-line mr-2 mt-1"></i>
+                            <span class="text-gray-400">123 Avenue des Champs-Élysées, 75008 Paris</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="ri-phone-line mr-2"></i>
+                            <span class="text-gray-400">+33 1 23 45 67 89</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="ri-mail-line mr-2"></i>
+                            <span class="text-gray-400">contact@bookypro.fr</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400 text-sm mb-4 md:mb-0">© 2025 BookyPro. Tous droits réservés.</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Conditions d'utilisation</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Politique de confidentialité</a>
+                        <a href="#" class="text-gray-400 hover:text-white text-sm">Mentions légales</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script id="calendarInteraction">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calendar day selection
+            const calendarDays = document.querySelectorAll('.calendar-day:not(.calendar-day-disabled)');
+            calendarDays.forEach(day => {
+                day.addEventListener('click', function() {
+                    // Remove selected class from all days
+                    calendarDays.forEach(d => d.classList.remove('calendar-day-selected'));
+                    // Add selected class to clicked day
+                    this.classList.add('calendar-day-selected');
+                });
+            });
+
+            // Time slot selection
+            const timeSlots = document.querySelectorAll('.time-slot:not(.time-slot-disabled)');
+            timeSlots.forEach(slot => {
+                slot.addEventListener('click', function() {
+                    // Remove selected class from all slots
+                    timeSlots.forEach(s => s.classList.remove('time-slot-selected'));
+                    // Add selected class to clicked slot
+                    this.classList.add('time-slot-selected');
+                });
+            });
+        });
+    </script>
+
+    <script id="darkModeToggle">
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            
+            darkModeToggle.addEventListener('change', function() {
+                // This is just a placeholder for dark mode toggle functionality
+                // In a real implementation, you would add/remove dark mode classes
+                console.log('Dark mode toggled:', this.checked);
+            });
+        });
+    </script>
+
+    <script id="customCheckboxes">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Custom checkbox and radio button functionality
+            const customInputs = document.querySelectorAll('.custom-checkbox input');
+            customInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    if (this.type === 'radio' && this.checked) {
+                        const name = this.getAttribute('name');
+                        document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                            const checkmark = radio.nextElementSibling;
+                            if (radio.checked) {
+                                checkmark.classList.add('bg-primary', 'border-primary');
+                            } else {
+                                checkmark.classList.remove('bg-primary', 'border-primary');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
